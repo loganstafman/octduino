@@ -1,0 +1,249 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.rawgit.com/konvajs/konva/2.0.2/konva.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/0.12.77/Tone.min.js"></script>
+    <meta charset="utf-8">
+    <title>Octduino Tone Setup</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #F0F0F0;
+        }
+    </style>
+</head>
+<body>
+<div id="container"></div>
+<script>
+	var numWhiteKeys = 31;
+	var numBlackKeys = 22;
+	function getWhiteNote(idx) {
+		var names = ['C','D','E','F','G','A','B'];
+		var n = idx % 7;
+		var name = names[n];
+		var number = parseInt(idx / 7) + 3;
+		return name + number;
+	}
+
+	function getBlackNote(idx) {
+		var names = ['CS', 'DS', 'FS', 'GS', 'AS'];
+		var n = idx % 5;
+		var name = names[n];
+		var number = parseInt(idx / 5) + 3;
+		return name + number;
+	}
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height
+    });
+
+    var layer = new Konva.Layer();
+    var totalWidth =stage.getWidth() - 200;
+
+    var imageObj = new Image();
+    var octopus;
+    imageObj.onload = function() {
+    	octopus = new Konva.Image({
+    		x: stage.getWidth() / 2 - 200,
+    		y: 100,
+    		image: imageObj,
+    		width: 500,
+    		height: 500
+    	});
+    	layer.add(octopus);
+    	octopus.moveToBottom();
+    	stage.add(layer);
+    	layer.draw();
+    }
+    imageObj.src = 'octopus2.png';
+
+    var whiteKeys = new Array();
+    for(var i = 0; i < numWhiteKeys; i++) {
+    	var box = new Konva.Rect({
+    		x: totalWidth / numWhiteKeys * i + 100,
+    		y: stage.getHeight() - 300,
+    		width: totalWidth / numWhiteKeys,
+    		height: 200,
+    		fill: 'white',
+    		stroke: 'black',
+    		strokeWidth: 4,
+    		draggable: false
+    	});
+    	var whiteKeyText = new Konva.Text({
+    		x: totalWidth / numWhiteKeys * i + 100 + 15,
+      		y: stage.getHeight() - 150,
+      		text: getWhiteNote(i),
+      		fontSize: 18,
+      		fill: 'black'
+    	});
+    	box.on('mouseup', function(e) {
+    		var idx = -1;
+    		for(var j = 0; j < numWhiteKeys; j++) {
+    			if(whiteKeys[j] == e.target) {
+    				idx = j;
+    				break;
+    			}
+    		}
+    		var note = getWhiteNote(idx);
+    		if(currSelection != -1) {
+    			buttonTexts[currSelection].setText(note);
+    			outputText.setText(getOutputString());
+    			layer.draw();
+    		}
+    		var synth = new Tone.Synth().toMaster();
+    		synth.triggerAttackRelease(note,"8n");
+
+    	});
+    	layer.add(box);
+    	whiteKeyText.setHitFunc(function() { return false; });
+    	layer.add(whiteKeyText);
+    	whiteKeys.push(box);
+    }
+    var blackKeys = new Array();
+    for(var i = 0; i < numBlackKeys; i++) {
+    	var k = i % 5;
+    	var x0 = totalWidth / numWhiteKeys * (3/4) + 100;
+    	var n = 0;
+    	if(k == 1) n += totalWidth / numWhiteKeys;
+    	else if(k > 1) n += totalWidth / numWhiteKeys * (k + 1);
+    	n += totalWidth / numWhiteKeys * parseInt(i / 5) * 7;
+    	var x = x0 + n;
+    	var box = new Konva.Rect({
+    		x: x,
+    		y: stage.getHeight() - 300,
+    		width: totalWidth / numWhiteKeys / 2,
+    		height: 100,
+    		fill: 'black',
+    		stroke: 'black',
+    		strokeWidth: 4,
+    		draggable: false
+    	});
+    	var blackKeyText = new Konva.Text({
+    		x: x + 2,
+      		y: stage.getHeight() - 250,
+      		text: getBlackNote(i).replace('S','#'),
+      		fontSize: 12,
+      		fill: 'white'
+    	});
+    	box.on('mouseup', function(e) {
+    		var idx = -1;
+    		for(var j = 0; j < numWhiteKeys; j++) {
+    			if(blackKeys[j] == e.target) {
+    				idx = j;
+    				break;
+    			}
+    		}
+    		var note = getBlackNote(idx);
+    		if(currSelection != -1) {
+    			buttonTexts[currSelection].setText(note.replace("S","#"));
+    			outputText.setText(getOutputString());
+    			layer.draw();
+    		}
+    		var synth = new Tone.Synth().toMaster();
+    		synth.triggerAttackRelease(note.replace("S","#"),"8n");
+
+    	});
+    	layer.add(box);
+    	blackKeyText.setHitFunc(function() { return false; });
+    	layer.add(blackKeyText);
+    	blackKeys.push(box);
+    }
+
+    var buttonLocations = [[75,416],
+    					   [111,410],
+    					   [144,392],
+    					   [159,468],
+    					   [193,443],
+    					   [211,404],
+    					   [332,472],
+    					   [300,434],
+    					   [283,396],
+    					   [417,415],
+    					   [369,397],
+    					   [338,372]];
+    var buttons = new Array();
+    var buttonTexts = new Array();
+    var currSelection = -1;
+    for(var i = 0; i < 12; i++) {
+    	var button = new Konva.Circle({
+    		x: buttonLocations[i][0] + stage.getWidth() / 2 - 200,
+    		y: buttonLocations[i][1] + 100,
+    		radius: 15,
+    		fill: 'lightblue',
+    		stroke: 'black',
+    		strokeWidth: 1,
+    		draggable: true
+    	});
+    	var buttonText = new Konva.Text({
+    		x: buttonLocations[i][0] + stage.getWidth() / 2 - 200-8,
+      		y: buttonLocations[i][1] + 100-5,
+      		text: 'C5',
+      		fontSize: 12,
+      		fill: 'black'
+    	});
+    	buttonText.setHitFunc(function() { return false; });
+    	button.on('mouseup', function(evt) {
+    		console.log((evt.evt.layerX - stage.getWidth() / 2 + 200) + " " + (evt.evt.layerY - 100));
+    		var idx = -1;
+    		for(var j = 0; j < 12; j++) {
+    			if (evt.target == buttons[j]) {
+    				idx = j
+    				break;
+    			}
+    		}
+    		if(idx == currSelection) {
+    			currSelection = -1;
+    			evt.target.setStroke("black");
+    			evt.target.setStrokeWidth(1);
+    			layer.draw();
+    			return;
+    		}
+    		currSelection = idx;
+    		for(var j = 0; j < 12; j++) {
+    			if (j == currSelection) {
+    				buttons[j].setStroke("yellow");
+    				buttons[j].setStrokeWidth(4);
+    			} else {
+    				buttons[j].setStroke("black");
+    				buttons[j].setStrokeWidth(1);
+    			}
+    		}
+    		layer.draw();
+
+    	});
+    	buttons.push(button);
+    	buttonTexts.push(buttonText);
+    	layer.add(button);
+    	layer.add(buttonText);
+    }
+
+    var outputText = new Konva.Text({
+    	x: 0,
+    	y: stage.getHeight() - 40,
+    	text: getOutputString(),
+    	align: 'center',
+    	wdith: stage.getWidth()
+    });
+    layer.add(outputText);
+    stage.add(layer);
+    function getOutputString() {
+    	var outputString = "int notes[]={";
+    	for(var i = 0; i < 12; i++) {
+    		outputString += "NOTE_" + buttonTexts[i].getText() + ",";
+    	}
+    	outputString = outputString.substring(0,outputString.length - 1);
+    	outputString += "};";
+    	return outputString;
+    }
+</script>
+
+</body>
+</html>
