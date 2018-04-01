@@ -1,1 +1,20 @@
-# octduino
+## Inspiration
+We are both PhD students in Computer Science at Princeton. We are both interested in teaching, especially young students. One of the hardest things about teaching computer science to young students is getting them engaged in the material. We wanted to create a physical interface that would allow students to explore electronics and coding in a fun and easy way. We chose to use a plush material because we wanted something that was familiar and friendly to children, even those that may be wary of electronics/technology. 
+
+## What it does
+The Octduino is an octopus plush that has 12 programmable buttons sewn to its tentacles with conductive thread. We have programmed the buttons to play the 12 notes of an octave so that the Octduino can be played like a piano. We have also created a GUI which we have included on our website, arduino.toys, which allows the user to program the notes which will be played by each button using a simple graphical interface. 
+
+## How we built it
+We purchased an octopus plush from Walmart and proceeded to completely take it apart and create the Octduino. We sewed three buttons on four of the eight tentacles using conductive thread. We attached two wires to each button that ran through the legs and out the back of the octopus plush. We attached two speakers in place of the eyes of the octopus and ran the wires through the back. We then connected all 28 wires to an arduino and breadboard. We built a GUI in javascript that displays a virtual keyboard and virtual Octduino. The user can select a note for each button on the Octduino using the virtual keyboard. The GUI outputs a header file containing the button data which can then be included in the arduino project so the physical Octduino plays the programmed notes. 
+
+## Challenges we ran into
+The physical assembly of the Octduino was very challenging. We were determined to utilize conductive thread for our project instead of hard buttons because we wanted the Octduino to maintain a soft, plush feel. However, we found that conductive thread has rarely been used successfully in existing projects (that we could find online) so we had to iterate through many designs for the buttons. Attaching the insulated wires to the conductive thread buttons also required several iterations. We eventually decided to solder thin, bendable, wire to the insulated wires and bend it into a loop shape which we then sewed onto each button. Once the Octduino was fully wired, we then were faced with the challenges of programming on an embedded system. Standard arduino libraries for playing tones did not allow multiple tones to be played simultaneously. We eventually found a solution by utilizing multiple pins to send signals to the speakers. 
+
+## Accomplishments that we're proud of
+We are proud that we were able to get the Octduino functional in such a short time frame while maintaining our original vision. We are very happy with the overall look of our project. The buttons sewn with conductive thread work very well and are easy to play with a light touch, which is even an improvement over similar toys sold at stores. 
+
+## What we learned
+This is the first hardware project that either of us had ever undertaken. We learned how to wire a breadboard and arduino, how to sew with conductive thread, and how to program and arduino. We also learned a lot about electrical circuitry along the way. 
+
+## What's next for Octduino
+We really want Octduino to be a tool for young people to learn about electronics and programming. We have started Octduino on its way by creating the physical Octduino itself as well as a basical GUI which allows for the buttons to be reprogrammed. However, we would like to make it easier for the user to do more with the programmable buttons, such as programming their own song, or even using the buttons to control a video game. One method of achieving this would be to integrate our code with Scratch, which would allow young users to utilize Scratch's visual programming language to create intricate programs using the Octduino device. 
